@@ -29,6 +29,7 @@ import numpy as np
 black = 1
 white = -1
 ai_player = white
+player = black
 
 def main():
 
@@ -52,13 +53,31 @@ def main():
         print("Black player starting...")
         ai_player = white
         player = black
+        player_turn = player
         print_board(board)
     elif first_player == 'w':
         print("White player starting...")
         ai_player = black
         player = white
+        player_turn = player
     else:
         print("Unexpected value entered")
+
+    while True:
+        # human player
+        if player_turn == player:
+            print("Your turn:")
+            row, col = get_player_move(board)
+            board[row, col] = player
+            print_board(board)
+            player_turn = ai_player
+        else:
+            print("AI's turn:")
+            move = minimax(board, 3, ai_player, player, -float('inf'), float('inf'))
+            print(f"AI plays: {move}")
+            board[move[0], move[1]] = ai_player
+            print_board(board)
+            player_turn = player
 
 def print_board(board):
     print("   0 1 2 3 4 5 6 7 ")
@@ -74,13 +93,43 @@ def print_board(board):
         print(temp_string)
     print("\n")
 
-def score_board(board):
+def get_player_move(board):
+    # gets move to add to the board
+    while True:
+        try:
+            move = input("Enter your move (row, col): ")
+            row, col = map(int, move.split(','))
+            if board[row, col] == 0 and is_valid_move(board, row, col, BLACK):
+                return row, col
+            else:
+                print("Invalid move! Try again.")
+        except (ValueError, IndexError):
+            print("Invalid input! Enter row and column as integers between 0 and 7.")
+
+def is_valid_move(board, row, col, player):
+    if board[row, col] != 0:
+        return False
+    for d in DIRECTIONS:
+        x, y = row + d[0], col + d[1]
+        found_opponent = False
+        while 0 <= x < 8 and 0 <= y < 8 and board[x, y] == -player:
+            x += d[0]
+            y += d[1]
+            found_opponent = True
+        if found_opponent and 0 <= x < 8 and 0 <= y < 8 and board[x, y] == player:
+            return True
+    return False
+
+def evaluate_board(board):
     # Counts number of pieces for each player to keep score
+    # add edge spaces
+    # corner spaces
     black_count = np.sum(board == black)
     white_count = np.sum(board == white)
+    # replace with weighted result based on what we decide are the most important moves
     return black_count - white_count
 
-def minimax(board, depth, ai_player, alpha, beta):
+def minimax(board, depth, ai_player, player, alpha, beta):
     if depth == 0:
         return score_board(board)
 
