@@ -69,7 +69,7 @@ def print_board(board):
         print(temp_string)
     print("\n")
 
-def evaluate_board(board):
+def score_board(board):
     # Counts number of pieces for each player to keep score
     black_count = np.sum(board == black)
     white_count = np.sum(board == white)
@@ -77,7 +77,7 @@ def evaluate_board(board):
 
 def minimax(board, depth, player, alpha, beta):
     if depth == 0:
-        return evaluate_board(board)
+        return score_board(board)
 
     best_move = None
     if player == white:
