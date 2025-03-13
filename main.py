@@ -3,8 +3,8 @@ import numpy as np
 # Global Vars
 black = 1
 white = -1
-ai_player = white
-player = black
+ai_player_color = white
+player_color = black
 directions = [[0,1], [1,1], [1,0], [1,-1], [0,-1], [-1,-1], [-1,0], [-1,1]]
             #  up  up-right  right down-right down down-left  left  up-left
 
@@ -26,34 +26,34 @@ def main():
 
     if first_player == 'b':
         print("Black player starting...")
-        ai_player = white
-        player = black
-        player_turn = player
+        ai_player_color = white
+        player_color = black
+        player_turn = player_color
         print_board(board)
     elif first_player == 'w':
         print("White player starting...")
-        ai_player = black
-        player = white
-        player_turn = player
+        ai_player_color = black
+        player_color = white
+        player_turn = player_color
     else:
         print("Unexpected value entered")
 
     while True:
         # human player
-        if player_turn == player:
+        if player_turn == player_color:
             print("Your turn:")
             start_x, start_y, row, col = get_player_move(board)
-            make_move(board, start_x, start_y, row, col, player)
+            make_move(board, start_x, start_y, row, col, player_turn)
             print_board(board)
-            player_turn = ai_player
+            player_turn = ai_player_color
         else:
             print("AI's turn:")
-            move = minimax(board, 2, ai_player, player, -float('inf'), float('inf'))
+            move = minimax(board, 2, ai_player_color, player_color, -float('inf'), float('inf'))
             print(f"AI plays: {move}")
             start_x, start_y, end_x, end_y, flipped = move
-            make_move(board, start_x, start_y, end_x, end_y, ai_player)
+            make_move(board, start_x, start_y, end_x, end_y, player_turn)
             print_board(board)
-            player_turn = player
+            player_turn = player_color
 
 # Prints the board
 def print_board(board):
@@ -62,9 +62,9 @@ def print_board(board):
         for i in range(8):
             if board[i,j] == 0:
                 temp_string = temp_string + " ."
-            elif board[i,j] == black: 
+            elif board[i,j] == black:
                 temp_string = temp_string + " X"
-            elif board[i,j] == white: 
+            elif board[i,j] == white:
                 temp_string = temp_string + " O"
         print(temp_string)
     print("   0 1 2 3 4 5 6 7 ")
@@ -74,7 +74,7 @@ def print_board(board):
 def get_player_move(board):
     while True:
         try:
-            start = input("Enter your move start (row, col): ")
+            start = input("Enter your move start (col, row): ")
             start_x, start_y = map(int, start.split(','))
             move = input("Enter your move (row, col): ")
             row, col = map(int, move.split(','))
@@ -110,56 +110,62 @@ def evaluate_board(board):
     # replace with weighted result based on what we decide are the most important moves
     return black_count - white_count
 
-def make_move(board, start_x, start_y, end_x, end_y, player):    # board[3, 2:6] = -1
+def make_move(board, start_x, start_y, end_x, end_y, player):
+    if start_x == end_x and start_y == end_y:  # start and end positions should be different
+        return #no valid move
+    if board[end_x, end_y] != 0:  # check if the end position is empty
+        return
     if start_x == end_x:  # Horizontal move
         board[start_x, min(start_y, end_y):max(start_y, end_y)+1] = player
     elif start_y == end_y:  # Vertical move
         board[min(start_x, end_x):max(start_x, end_x)+1, start_y] = player
-    else:        # diagonal move
-        dx = 1 if end_x > start_x else -1  # Determine row direction (+1 or -1)
-        dy = 1 if end_y > start_y else -1  # Determine column direction (+1 or -1)
-        for step in range(1, abs(start_x - end_x)):  # Don't include start and end points
+    else:  # Diagonal move
+        dx = 1 if end_x > start_x else -1
+        dy = 1 if end_y > start_y else -1
+        for step in range(abs(start_x - end_x) + 1):
             board[start_x + step * dx, start_y + step * dy] = player
-    
 
-# AI Minimax algorithm
-def minimax(board, depth, ai_player, player, alpha, beta):
+def minimax(board, depth, ai_player_color, player_color, alpha, beta):
     if depth == 0:   # if depth = 0, end of search, eval board and return
         return evaluate_board(board)
 
     best_move = None
-    if player == ai_player:     # We want to max!!
+    if ai_player_color == player:     # We want to max!!
         max_eval = -float('inf')
-        moves = generate_moves(board, ai_player)
+        moves = generate_moves(board, ai_player_color) # Changed from ai_player to ai_player_color
+        if not moves:
+            return evaluate_board(board)
         for move in moves:
             start_x, start_y, end_x, end_y, flipped = move
             new_board = board.copy()
-            make_move(new_board, start_x, start_y, end_x, end_y, ai_player)
-            eval = minimax(new_board, depth-1, player, ai_player, alpha, beta)
+            make_move(new_board, start_x, start_y, end_x, end_y, ai_player_color) # Changed from ai_player to ai_player_color
+            eval = minimax(new_board, depth-1, player_color, ai_player_color, alpha, beta) #swapped player_color and ai_player_color
             if eval > max_eval:
                 max_eval = eval
                 best_move = move
             alpha = max(alpha, eval)
             if beta <= alpha:
                 break
-        if depth == 2:  ## if at the top and we are done  
+        if depth == 2:  ## if at the top and we are done
             return best_move
         return max_eval
     else:                     # we want to min!!!
         min_eval = float('inf')
-        moves = generate_moves(board, player)
+        moves = generate_moves(board, player_color) # Changed from player to player_color
+        if not moves:
+            return evaluate_board(board)
         for move in moves:
             start_x, start_y, end_x, end_y, flipped = move
             new_board = board.copy()
-            make_move(new_board, start_x, start_y, end_x, end_y, player)
-            eval = minimax(new_board, depth-1, ai_player, player, alpha, beta)
+            make_move(new_board, start_x, start_y, end_x, end_y, player_color)
+            eval = minimax(new_board, depth-1, ai_player_color, player_color, alpha, beta)
             if eval < min_eval:
                 min_eval = eval
                 best_move = move
             beta = min(beta, eval)
             if beta <= alpha:
                 break
-        if depth == 2:  
+        if depth == 2:
             return best_move
         return min_eval
 
