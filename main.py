@@ -86,19 +86,19 @@ def get_player_move(board):
             print("Invalid input! Enter row and column as integers between 0 and 7.")
 
 # Checks move and adds to board
-def is_valid_move(board, row, col, player):
-    if board[row, col] != 0:    # space has to be empty to make a move
-        return False
-    for d in directions:
-        x, y = row + d[0], col + d[1]
-        found_opponent = False
-        while 0 <= x < 8 and 0 <= y < 8 and board[x, y] == -player:
-            x += d[0]
-            y += d[1]
-            found_opponent = True
-        if found_opponent and 0 <= x < 8 and 0 <= y < 8 and board[x, y] == player:
-            return True
-    return False
+#def is_valid_move(board, row, col, player):
+    #if board[row, col] != 0:    # space has to be empty to make a move
+       # return False
+    #for d in directions:
+        #x, y = row + d[0], col + d[1]
+       # found_opponent = False
+       # while 0 <= x < 8 and 0 <= y < 8 and board[x, y] == -player:
+         #   x += d[0]
+         #   y += d[1]
+         #   found_opponent = True
+      #  if found_opponent and 0 <= x < 8 and 0 <= y < 8 and board[x, y] == player:
+      #      return True
+ #   return False
 
 # Evaluate Function
 def evaluate_board(board):
