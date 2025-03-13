@@ -28,6 +28,7 @@ import numpy as np
 
 black = 1
 white = -1
+ai_player = white
 
 def main():
 
@@ -49,9 +50,13 @@ def main():
 
     if first_player == 'b':
         print("Black player starting...")
+        ai_player = white
+        player = black
         print_board(board)
     elif first_player == 'w':
         print("White player starting...")
+        ai_player = black
+        player = white
     else:
         print("Unexpected value entered")
 
@@ -75,18 +80,18 @@ def score_board(board):
     white_count = np.sum(board == white)
     return black_count - white_count
 
-def minimax(board, depth, player, alpha, beta):
+def minimax(board, depth, ai_player, alpha, beta):
     if depth == 0:
         return score_board(board)
 
     best_move = None
-    if player == white:
+    if player == ai_player:
         max_eval = -float('inf')
-        moves = generate_moves(board, white)
+        moves = generate_moves(board, ai_player)
         for move in moves:
             new_board = board.copy()
-            new_board[move[0], move[1]] = white
-            eval = minimax(new_board, depth-1, black, alpha, beta)
+            new_board[move[0], move[1]] = ai_player
+            eval = minimax(new_board, depth-1, player, alpha, beta)
             if eval > max_eval:
                 max_eval = eval
                 best_move = move
@@ -98,11 +103,11 @@ def minimax(board, depth, player, alpha, beta):
         return max_eval
     else:
         min_eval = float('inf')
-        moves = generate_moves(board, black)
+        moves = generate_moves(board, player)
         for move in moves:
             new_board = board.copy()
-            new_board[move[0], move[1]] = black
-            eval = minimax(new_board, depth-1, white, alpha, beta)
+            new_board[move[0], move[1]] = player
+            eval = minimax(new_board, depth-1, ai_player, alpha, beta)
             if eval < min_eval:
                 min_eval = eval
                 best_move = move
