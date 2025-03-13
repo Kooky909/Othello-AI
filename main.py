@@ -17,7 +17,7 @@ def main():
     board[4, 4] = black
     board[3, 4] = white # Opponent piece
     board[4, 3] = white # Opponent piece
-    #board[3, 2:6] *= -1  # Flip all pieces from column 2 to 5
+    #board[3, 2:6] = -1  # Flip all pieces from column 2 to 5
 
     # Find out which play is playing first - set to black for testing
     #first_player = input("Enter the player to start: (Black/White)\n")
@@ -110,11 +110,11 @@ def evaluate_board(board):
     # replace with weighted result based on what we decide are the most important moves
     return black_count - white_count
 
-def make_move(board, start_x, start_y, end_x, end_y, player):
+def make_move(board, start_x, start_y, end_x, end_y, player):    # board[3, 2:6] = -1
     if start_x == end_x:  # Horizontal move
-        board[start_x, min(start_y, end_y) + 1:max(start_y, end_y)] = player
+        board[start_x, min(start_y, end_y):max(start_y, end_y)+1] = player
     elif start_y == end_y:  # Vertical move
-        board[min(start_x, end_x) + 1:max(start_x, end_x), start_y] = player
+        board[min(start_x, end_x):max(start_x, end_x)+1, start_y] = player
     else:        # diagonal move
         dx = 1 if end_x > start_x else -1  # Determine row direction (+1 or -1)
         dy = 1 if end_y > start_y else -1  # Determine column direction (+1 or -1)
