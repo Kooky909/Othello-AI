@@ -62,17 +62,17 @@ def print_board(board):
         for j in range(8):
             if board[i,j] == 0:
                 temp_string = temp_string + " ."
-            elif board[i,j] == 1: 
+            elif board[i,j] == black: 
                 temp_string = temp_string + " X"
-            elif board[i,j] == -1: 
+            elif board[i,j] == white: 
                 temp_string = temp_string + " O"
         print(temp_string)
     print("\n")
 
 def evaluate_board(board):
     # Counts number of pieces for each player to keep score
-    black_count = np.sum(board == BLACK)
-    white_count = np.sum(board == WHITE)
+    black_count = np.sum(board == black)
+    white_count = np.sum(board == white)
     return black_count - white_count
 
 def minimax(board, depth, player, alpha, beta):
