@@ -130,7 +130,7 @@ def minimax(board, depth, ai_player_color, player_color, alpha, beta):
         return evaluate_board(board)
 
     best_move = None
-    if ai_player_color == player:     # We want to max!!
+    if ai_player_color == player_color:     # We want to max!!
         max_eval = -float('inf')
         moves = generate_moves(board, ai_player_color) # Changed from ai_player to ai_player_color
         if not moves:
