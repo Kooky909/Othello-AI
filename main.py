@@ -8,12 +8,13 @@ player_color = black
 depth_ply = 2
 directions = [[0,1], [1,1], [1,0], [1,-1], [0,-1], [-1,-1], [-1,0], [-1,1]]
             #  up  up-right  right down-right down down-left  left  up-left
+board_stack = []
 
 # Main program
 def main():
     global ai_player_color, player_color
 
-    board = np.zeros((8, 8))
+    board = np.zeros((8, 8))  # Make board and set original pieces
     board[3, 3] = black
     board[4, 4] = black
     board[3, 4] = white
@@ -37,6 +38,7 @@ def main():
     while True:
         if player_turn == player_color:
             print("Your turn:")
+            board_stack.append(board)
             row, col = get_player_move(board, player_color)
             make_move(board, row, col, player_color)
             print_board(board)
@@ -45,13 +47,14 @@ def main():
         else:
             print("AI's turn:")
             move = minimax(board, depth_ply, ai_player_color, player_color, player_turn, -float('inf'), float('inf'))
-            _, _, row, col, _ = move
+            row, col, _ = move
             print(f"AI plays at ({row}, {col})")
             make_move(board, row, col, ai_player_color)
             print_board(board)
             print_piece_counts(board)
             player_turn = player_color
 
+        # End game logic
         black_count, white_count = count_pieces(board)
         if black_count == 0 or white_count == 0:
             print("Game Over!")
@@ -87,6 +90,9 @@ def get_player_move(board, player):
     while True:
         try:
             move = input("Enter your move -- include comma (col, row): ")
+            if move == "undo":
+                board = undo_move()
+                move = input("Enter your move -- include comma (col, row): ")
             x, y = map(int, move.split(','))
             if board[x, y] == 0:
                 valid = False
@@ -105,6 +111,16 @@ def make_move(board, x, y, player):
     for d in directions:
         if can_flip(board, x, y, d[0], d[1], player):
             flip_pieces(board, x, y, d[0], d[1], player)
+
+def undo_move():
+    print(board_stack)
+    old_board = board_stack.pop()
+    print("old_board")
+    print_board(old_board)
+    new_board = board_stack[-1]
+    print("Returning to last human player move...")
+    print_board(new_board)
+    return new_board
 
 # Sees if there are player pieces in a given direction
 def can_flip(board, x, y, dx, dy, player):
@@ -158,7 +174,7 @@ def minimax(board, depth, ai_color, human_color, player_turn, alpha, beta):
     if player_turn == ai_color:
         max_eval = -float('inf')
         for move in moves:
-            _, _, x, y, _ = move
+            x, y, _ = move
             new_board = board.copy()
             make_move(new_board, x, y, player_turn)
             eval = minimax(new_board, depth - 1, ai_color, human_color, -player_turn, alpha, beta)
@@ -172,7 +188,7 @@ def minimax(board, depth, ai_color, human_color, player_turn, alpha, beta):
     else:
         min_eval = float('inf')
         for move in moves:
-            _, _, x, y, _ = move
+            x, y, _ = move
             new_board = board.copy()
             make_move(new_board, x, y, player_turn)
             eval = minimax(new_board, depth - 1, ai_color, human_color, -player_turn, alpha, beta)
@@ -193,12 +209,14 @@ def direction_search(board, x, y, dx, dy, player):
         if board[i, j] == -player:
             flips += 1
         elif board[i, j] == player:
-            return flips, x, y
+            #return flips, x, y
+            return flips
         else:
             break
         i += dx
         j += dy
-    return 0, x, y
+    #return 0, x, y
+    return 0
 
 def generate_moves(board, player):
     moves = []
@@ -207,10 +225,12 @@ def generate_moves(board, player):
             if board[i, j] == 0:
                 total_flips = 0
                 for d in directions:
-                    flips, _, _ = direction_search(board, i, j, d[0], d[1], player)
+                    #flips, _, _ = direction_search(board, i, j, d[0], d[1], player)
+                    flips = direction_search(board, i, j, d[0], d[1], player)
                     total_flips += flips
                 if total_flips > 0:
-                    moves.append((None, None, i, j, total_flips))
+                    #moves.append((None, None, i, j, total_flips))
+                    moves.append((i, j, total_flips))
     return moves
 
 main()
