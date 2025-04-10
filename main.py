@@ -5,7 +5,7 @@ black = 1
 white = -1
 ai_player_color = white
 player_color = black
-depth_ply = 2
+depth_ply = 5
 directions = [[0,1], [1,1], [1,0], [1,-1], [0,-1], [-1,-1], [-1,0], [-1,1]]
             #  up  up-right  right down-right down down-left  left  up-left
 board_stack = []
@@ -34,30 +34,42 @@ def main():
     player_turn = black
     print_board(board)
     print_piece_counts(board)
+    moves_player = []
+    moves_ai = []
 
     while True:
         if player_turn == player_color:
             print("Your turn:")
-            new_board = board.copy()
-            board_stack.append(new_board)
-            row, col, board = get_player_move(board, player_color)
-            make_move(board, row, col, player_color)
-            print_board(board)
-            print_piece_counts(board)
-            player_turn = ai_player_color
+            moves_player = generate_moves(board, player_color)
+            if not moves_player:
+                print("No moves available, skipping turn...")
+                player_turn = ai_player_color
+            else:
+                new_board = board.copy()
+                board_stack.append(new_board)
+                row, col, board = get_player_move(board, player_color)
+                make_move(board, row, col, player_color)
+                print_board(board)
+                print_piece_counts(board)
+                player_turn = ai_player_color
         else:
             print("AI's turn:")
-            move = minimax(board, depth_ply, ai_player_color, player_color, player_turn, -float('inf'), float('inf'))
-            row, col, _ = move
-            print(f"AI plays at ({row}, {col})")
-            make_move(board, row, col, ai_player_color)
-            print_board(board)
-            print_piece_counts(board)
-            player_turn = player_color
+            moves_ai = generate_moves(board, ai_player_color)
+            if not moves_ai:
+                print("No moves available, skipping turn...")
+                player_turn = player_color
+            else:
+                move = minimax(board, depth_ply, ai_player_color, player_color, player_turn, -float('inf'), float('inf'))
+                row, col, _ = move
+                print(f"AI plays at ({row}, {col})")
+                make_move(board, row, col, ai_player_color)
+                print_board(board)
+                print_piece_counts(board)
+                player_turn = player_color
 
         # End game logic
         black_count, white_count = count_pieces(board)
-        if black_count == 0 or white_count == 0:
+        if black_count == 0 or white_count == 0 or black_count + white_count == 64 or (not moves_ai and not moves_player):
             print("Game Over!")
             winner = "Black" if black_count > white_count else "White"
             print(f"{winner} wins!")
