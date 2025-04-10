@@ -102,6 +102,7 @@ def count_pieces(board):
 def get_player_move(board, player):
     while True:
         try:
+            print("If you would like to undo your most recent move type 'undo'")
             move = input("Enter your move -- include comma (col, row): ")
             if move == "undo":
                 board = undo_move()
