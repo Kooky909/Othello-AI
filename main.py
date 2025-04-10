@@ -38,8 +38,9 @@ def main():
     while True:
         if player_turn == player_color:
             print("Your turn:")
-            board_stack.append(board)
-            row, col = get_player_move(board, player_color)
+            new_board = board.copy()
+            board_stack.append(new_board)
+            row, col, board = get_player_move(board, player_color)
             make_move(board, row, col, player_color)
             print_board(board)
             print_piece_counts(board)
@@ -92,6 +93,7 @@ def get_player_move(board, player):
             move = input("Enter your move -- include comma (col, row): ")
             if move == "undo":
                 board = undo_move()
+                print_board(board)
                 move = input("Enter your move -- include comma (col, row): ")
             x, y = map(int, move.split(','))
             if board[x, y] == 0:
@@ -101,7 +103,7 @@ def get_player_move(board, player):
                         valid = True
                         break
                 if valid:
-                    return x, y
+                    return x, y, board
             print("Invalid move, try again.")
         except (ValueError, IndexError):
             print("Invalid input, enter row and column as integers between 0 and 7.")
@@ -113,13 +115,9 @@ def make_move(board, x, y, player):
             flip_pieces(board, x, y, d[0], d[1], player)
 
 def undo_move():
-    print(board_stack)
-    old_board = board_stack.pop()
-    print("old_board")
-    print_board(old_board)
+    board_stack.pop()
     new_board = board_stack[-1]
     print("Returning to last human player move...")
-    print_board(new_board)
     return new_board
 
 # Sees if there are player pieces in a given direction
