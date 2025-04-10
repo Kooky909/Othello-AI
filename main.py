@@ -5,7 +5,7 @@ black = 1
 white = -1
 ai_player_color = white
 player_color = black
-depth_ply = 5
+depth_ply = 6
 directions = [[0,1], [1,1], [1,0], [1,-1], [0,-1], [-1,-1], [-1,0], [-1,1]]
             #  up  up-right  right down-right down down-left  left  up-left
 board_stack = []
